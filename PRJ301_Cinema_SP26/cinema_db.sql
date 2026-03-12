@@ -100,7 +100,7 @@ CREATE TABLE Ticket (
     CONSTRAINT FK_Ticket_Seat FOREIGN KEY (SeatId) REFERENCES Seat(SeatId),
     CONSTRAINT FK_Ticket_Customer FOREIGN KEY (CustomerId) REFERENCES [User](UserId),
     CONSTRAINT FK_Ticket_Staff FOREIGN KEY (StaffId) REFERENCES [User](UserId),
-    CONSTRAINT UQ_Ticket_Seat Schedule (ScheduleId, SeatId) -- Một ghế trong suất chiếu chỉ mua 1 lần
+    CONSTRAINT UQ_Ticket_Seat UNIQUE (ScheduleId, SeatId) -- Một ghế trong suất chiếu chỉ mua 1 lần
 );
 GO
 

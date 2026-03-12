@@ -65,6 +65,10 @@ public class PaymentServlet extends HttpServlet {
             SeatDAO seatDao = new SeatDAO();
             List<Seat> allSeats = seatDao.getSeatsByRoomId(selectedSchedule.getRoomId());
             
+            dao.SnackDAO snackDao = new dao.SnackDAO();
+            List<models.Snack> availableSnacks = snackDao.getAllSnacks();
+            request.setAttribute("availableSnacks", availableSnacks);
+            
             List<Seat> selectedSeats = new ArrayList<>();
             for (String sId : seatIdArray) {
                 int id = Integer.parseInt(sId);
@@ -141,6 +145,19 @@ public class PaymentServlet extends HttpServlet {
                 Ticket t = new Ticket(0, scheduleId, seatId, customerId, null, null, "Paid");
                 if (!tDao.bookTicket(t)) {
                     success = false;
+                }
+            }
+
+            // Process Snack Orders
+            dao.SnackDAO snackDao = new dao.SnackDAO();
+            List<models.Snack> snacks = snackDao.getAllSnacks();
+            for (models.Snack s : snacks) {
+                String qStr = request.getParameter("snack_qty_" + s.getSnackId());
+                if (qStr != null && !qStr.isEmpty()) {
+                    int qty = Integer.parseInt(qStr);
+                    if (qty > 0) {
+                        snackDao.sellSnack(s.getSnackId(), qty, null, customerId);
+                    }
                 }
             }
 
