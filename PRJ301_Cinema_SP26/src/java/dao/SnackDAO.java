@@ -79,7 +79,7 @@ public class SnackDAO extends DBContext {
         return false;
     }
 
-    public boolean sellSnack(int snackId, int quantity, int staffId, Integer customerId) {
+    public boolean sellSnack(int snackId, int quantity, Integer staffId, Integer customerId) {
         // Simple non-transactional flow: 1) Get Price 2) Update Stock 3) Insert Order
         try (Connection conn = getConnection()) {
             double price = 0;
@@ -110,7 +110,11 @@ public class SnackDAO extends DBContext {
 
             String insertOrderSql = "INSERT INTO SnackOrder (StaffId, SnackId, Quantity, TotalPrice, CustomerId) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement stI = conn.prepareStatement(insertOrderSql)) {
-                stI.setInt(1, staffId);
+                if (staffId != null) {
+                    stI.setInt(1, staffId);
+                } else {
+                    stI.setNull(1, java.sql.Types.INTEGER);
+                }
                 stI.setInt(2, snackId);
                 stI.setInt(3, quantity);
                 stI.setDouble(4, totalPrice);

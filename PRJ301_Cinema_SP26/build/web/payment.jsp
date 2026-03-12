@@ -96,6 +96,27 @@
                         </c:otherwise>
                     </c:choose>
                     
+                    <div class="snacks-section" style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
+                        <h3>Add Snacks & Drinks</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                            <c:forEach items="${requestScope.availableSnacks}" var="snack">
+                                <div class="snack-card" style="border: 1px solid #eee; padding: 10px; border-radius: 8px; background: #fff;">
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <img src="${snack.imageUrl}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" onerror="this.src='https://via.placeholder.com/50x50.png?text=Snack'">
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: bold; font-size: 14px;">${snack.name}</div>
+                                            <div style="color: #2ecc71; font-size: 13px;"><fmt:formatNumber value="${snack.price}" pattern="#,###"/> đ</div>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between;">
+                                        <span style="font-size: 12px; color: #777;">Stock: ${snack.stockQuantity}</span>
+                                        <input type="number" name="snack_qty_${snack.snackId}" class="snack-qty" data-price="${snack.price}" value="0" min="0" max="${snack.stockQuantity}" style="width: 50px; padding: 5px; border: 1px solid #ddd; border-radius: 4px;" onchange="updateTotal()">
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </div>
+                    </div>
+                    
                     <button type="submit" class="btn-pay" onclick="this.innerHTML='Processing...'; this.style.opacity='0.8';">Confirm Purchase & Pay</button>
                     <a href="booking?scheduleId=${requestScope.schedule.scheduleId}" style="display: block; text-align: center; margin-top: 15px; color: #e50914; text-decoration: none;">&larr; Go back to Seat Selection</a>
                 </form>
@@ -112,10 +133,12 @@
                     <span>Movie</span>
                     <strong>${requestScope.movie.title}</strong>
                 </div>
-                <div class="summary-item">
-                    <span>Theater</span>
-                    <strong>${requestScope.schedule.theaterName}</strong>
-                </div>
+                <c:if test="${not empty requestScope.schedule.theaterName}">
+                    <div class="summary-item">
+                        <span>Theater</span>
+                        <strong>${requestScope.schedule.theaterName}</strong>
+                    </div>
+                </c:if>
                 <div class="summary-item">
                     <span>Room</span>
                     <strong>${requestScope.schedule.roomName}</strong>
@@ -135,10 +158,48 @@
                     </strong>
                 </div>
                 
+                <div id="snack-summary" style="display: none; border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px;">
+                    <span style="font-size: 14px; color: #777;">Snacks:</span>
+                    <div id="snack-list" style="font-size: 13px; margin-top: 5px;"></div>
+                </div>
+
                 <div class="total-price">
-                    Total: <fmt:formatNumber value="${requestScope.totalAmount}" pattern="#,###"/> VND
+                    Total: <span id="display-total"><fmt:formatNumber value="${requestScope.totalAmount}" pattern="#,###"/></span> VND
                 </div>
             </div>
         </div>
+
+        <script>
+            const ticketTotal = ${requestScope.totalAmount};
+            
+            function updateTotal() {
+                let snackTotal = 0;
+                let snackItemsHtml = "";
+                const qtyInputs = document.querySelectorAll('.snack-qty');
+                
+                qtyInputs.forEach(input => {
+                    const qty = parseInt(input.value);
+                    if (qty > 0) {
+                        const price = parseFloat(input.getAttribute('data-price'));
+                        const name = input.closest('.snack-card').querySelector('div[style*="font-weight: bold"]').innerText;
+                        snackTotal += qty * price;
+                        snackItemsHtml += `<div>${name} x ${qty}</div>`;
+                    }
+                });
+                
+                const finalTotal = ticketTotal + snackTotal;
+                document.getElementById('display-total').innerText = finalTotal.toLocaleString();
+                
+                const summaryDiv = document.getElementById('snack-summary');
+                const listDiv = document.getElementById('snack-list');
+                
+                if (snackTotal > 0) {
+                    summaryDiv.style.display = 'block';
+                    listDiv.innerHTML = snackItemsHtml;
+                } else {
+                    summaryDiv.style.display = 'none';
+                }
+            }
+        </script>
     </body>
 </html>

@@ -56,8 +56,11 @@ public class AdminMovieServlet extends HttpServlet {
                 String posterUrl = request.getParameter("posterUrl");
 
                 Movie m = new Movie(0, title, description, duration, releaseDate, posterUrl);
-                dao.insertMovie(m);
-                request.getSession().setAttribute("message", "Movie added successfully!");
+                if (dao.insertMovie(m)) {
+                    request.getSession().setAttribute("message", "Movie added successfully!");
+                } else {
+                    request.getSession().setAttribute("error", "Failed to add movie. Please check details.");
+                }
 
             } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("movieId"));
@@ -68,13 +71,19 @@ public class AdminMovieServlet extends HttpServlet {
                 String posterUrl = request.getParameter("posterUrl");
 
                 Movie m = new Movie(id, title, description, duration, releaseDate, posterUrl);
-                dao.updateMovie(m);
-                request.getSession().setAttribute("message", "Movie updated successfully!");
+                if (dao.updateMovie(m)) {
+                    request.getSession().setAttribute("message", "Movie updated successfully!");
+                } else {
+                    request.getSession().setAttribute("error", "Failed to update movie.");
+                }
 
             } else if ("delete".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("movieId"));
-                dao.deleteMovie(id);
-                request.getSession().setAttribute("message", "Movie deleted successfully!");
+                if (dao.deleteMovie(id)) {
+                    request.getSession().setAttribute("message", "Movie deleted successfully!");
+                } else {
+                    request.getSession().setAttribute("error", "Failed to delete movie. It might have active schedules or other dependencies.");
+                }
             }
         } catch (Exception e) {
             request.getSession().setAttribute("error", "Error processing request: " + e.getMessage());
