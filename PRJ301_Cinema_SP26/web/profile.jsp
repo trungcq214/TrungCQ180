@@ -19,8 +19,8 @@
             
             .btn-save { width: 100%; background: #2ecc71; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
             .btn-save:hover { background: #27ae60; }
-            .btn-back { display: block; text-align: center; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 14px; }
-            .btn-back:hover { text-decoration: underline; }
+            .btn-back { display: block; text-align: center; margin-top: 15px; background: #95a5a6; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; }
+            .btn-back:hover { background: #7f8c8d; }
             
             .msg { padding: 10px; border-radius: 4px; margin-bottom: 20px; text-align: center; }
             .msg-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }

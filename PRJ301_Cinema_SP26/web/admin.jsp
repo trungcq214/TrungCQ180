@@ -14,9 +14,11 @@
             .content { flex: 1; padding: 40px; overflow-y: auto; }
             .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 20px; margin-bottom: 30px; }
             .header h1 { margin: 0; color: #333; }
-            .user-info { font-weight: bold; color: #555; }
-            .btn-logout { background: #e74c3c; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; margin-left: 15px; }
+            .user-info { font-weight: bold; color: #555; display: flex; align-items: center; gap: 10px; }
+            .btn-logout { background: #e74c3c; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; }
             .btn-logout:hover { background: #c0392b; }
+            .btn-back { background: #95a5a6; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-size: 14px; cursor: pointer; border: none; }
+            .btn-back:hover { background: #7f8c8d; }
             
             /* Dashboard Grid */
             .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
@@ -46,9 +48,9 @@
         <div class="content">
             <div class="header">
                 <h1>Overview</h1>
-                <div class="user-info">
-                    Welcome, <a href="profile" style="color: #555; text-decoration: underline;" title="My Profile">Administrator</a>
-                    <a href="logout" class="btn-logout">Logout</a>
+            <div class="user-info">
+                    Xin chào, <a href="profile" style="color: #3498db; text-decoration: underline; font-weight: bold;">${sessionScope.account.fullName != null ? sessionScope.account.fullName : sessionScope.account.username}</a>
+                    <a href="logout" class="btn-logout">Đăng xuất</a>
                 </div>
             </div>
             
