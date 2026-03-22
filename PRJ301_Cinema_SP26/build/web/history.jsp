@@ -22,6 +22,8 @@
             
             .btn-home { display: inline-block; padding: 10px 20px; background-color: #e50914; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 20px; }
             .btn-home:hover { background-color: #b20710; }
+            .btn-back { display: inline-block; padding: 9px 18px; background: #555; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; margin-bottom: 15px; border: none; cursor: pointer; font-size: 14px; }
+            .btn-back:hover { background: #333; }
         </style>
     </head>
     <body>
@@ -45,7 +47,8 @@
         </div>
 
         <div class="container">
-            <h2>Purchase History</h2>
+            <button class="btn-back" onclick="history.back()">&#8592; Quay lại</button>
+            <h2>Lịch sử Mua hàng</h2>
             
             <c:choose>
                 <c:when test="${empty requestScope.tickets}">

@@ -17,9 +17,12 @@
             .content { flex: 1; padding: 40px; overflow-y: auto; }
             .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 20px; margin-bottom: 30px; }
             .header h1 { margin: 0; color: #333; }
-            .user-info { font-weight: bold; color: #555; }
-            .btn-logout { background: #e74c3c; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; margin-left: 15px; }
+            .user-info { font-weight: bold; color: #555; display: flex; align-items: center; gap: 10px; }
+            .btn-logout { background: #e74c3c; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; }
             .btn-logout:hover { background: #c0392b; }
+            .btn-back { background: #95a5a6; color: white; padding: 7px 14px; text-decoration: none; border-radius: 4px; font-size: 14px; border: none; cursor: pointer; }
+            .btn-back:hover { background: #7f8c8d; }
+            .header-left { display: flex; align-items: center; gap: 15px; }
             
             /* Dashboard Grid */
             .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
@@ -41,19 +44,19 @@
                 <li><a href="staff" class="active">Dashboard</a></li>
                 <li><a href="staffBooking">Point of Sale (POS)</a></li>
                 <li><a href="staffSnacks">Sell Snacks</a></li>
-                <li><a href="staffTickets">Sold Tickets & Snacks</a></li>
+                <li><a href="staffTickets">Sold Tickets &amp; Snacks</a></li>
             </ul>
-            <div class="sidebar-footer">
-                <a href="logout">Logout</a>
-            </div>
         </div>
         
         <div class="content">
             <div class="header">
-                <h1>Point of Sale Dashboard</h1>
+                <div class="header-left">
+                    <a href="javascript:history.back()" class="btn-back">Back</a>
+                    <h1>Point of Sale Dashboard</h1>
+                </div>
                 <div class="user-info">
-                    Welcome, <a href="profile" style="color: #555; text-decoration: underline;" title="My Profile">${sessionScope.account.fullName != null ? sessionScope.account.fullName : 'Staff'}</a>
-                    <a href="logout" class="btn-logout">Logout</a>
+                    Xin chào, <a href="profile" style="color: #555; text-decoration: underline; font-weight: bold;">${sessionScope.account.fullName != null ? sessionScope.account.fullName : sessionScope.account.username}</a>
+                    <a href="logout" class="btn-logout">Đăng xuất</a>
                 </div>
             </div>
             

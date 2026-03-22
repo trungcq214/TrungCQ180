@@ -22,7 +22,12 @@
             .main-content { flex: 1; padding: 30px; overflow-y: auto; }
             .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
             .header h1 { margin: 0; color: #2c3e50; }
-            .header-user { background: white; padding: 10px 20px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: bold; color: #2980b9;}
+            .header-left { display: flex; align-items: center; gap: 15px; }
+            .header-user { display: flex; align-items: center; gap: 10px; background: white; padding: 10px 20px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: bold; color: #2980b9;}
+            .btn-back { background: #95a5a6; color: white; padding: 7px 14px; text-decoration: none; border-radius: 4px; font-size: 14px; border: none; cursor: pointer; }
+            .btn-back:hover { background: #7f8c8d; }
+            .btn-logout { background: #e74c3c; color: white; padding: 7px 14px; text-decoration: none; border-radius: 4px; font-size: 14px; }
+            .btn-logout:hover { background: #c0392b; }
             
             /* Tables */
             .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -53,8 +58,14 @@
         
         <div class="main-content">
             <div class="header">
-                <h1>Manage Sold Tickets</h1>
-                <div class="header-user">Logged in as: <a href="profile" style="color: #2980b9; text-decoration: underline;" title="My Profile">${sessionScope.account.username}</a> (Staff)</div>
+                <div class="header-left">
+                    <button class="btn-back" onclick="history.back()">&#8592; Quay lại</button>
+                    <h1>Manage Sold Tickets</h1>
+                </div>
+                <div class="header-user">
+                    Xin chào, <a href="profile" style="color: #2980b9; text-decoration: underline;">${sessionScope.account.fullName != null ? sessionScope.account.fullName : sessionScope.account.username}</a>
+                    <a href="logout" class="btn-logout">Đăng xuất</a>
+                </div>
             </div>
             
             <div class="card">
