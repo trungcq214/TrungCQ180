@@ -136,6 +136,42 @@ public class SnackDAO extends DBContext {
         return false;
     }
 
+    public void refundSnacksByOrderTime(java.sql.Timestamp bookingTime, Integer customerId, Integer staffId) {
+        String selectSql = "SELECT OrderId, SnackId, Quantity FROM SnackOrder WHERE ABS(DATEDIFF(second, OrderTime, ?)) <= 5";
+        if (customerId != null) selectSql += " AND CustomerId = ?"; else selectSql += " AND CustomerId IS NULL";
+        if (staffId != null) selectSql += " AND StaffId = ?"; else selectSql += " AND StaffId IS NULL";
+        
+        try (Connection conn = getConnection()) {
+            List<int[]> ordersToRefund = new ArrayList<>();
+            try (PreparedStatement st = conn.prepareStatement(selectSql)) {
+                st.setTimestamp(1, bookingTime);
+                int pIndex = 2;
+                if (customerId != null) { st.setInt(pIndex++, customerId); }
+                if (staffId != null) { st.setInt(pIndex++, staffId); }
+                
+                try (ResultSet rs = st.executeQuery()) {
+                    while(rs.next()) {
+                        ordersToRefund.add(new int[]{rs.getInt("OrderId"), rs.getInt("SnackId"), rs.getInt("Quantity")});
+                    }
+                }
+            }
+            
+            for (int[] order : ordersToRefund) {
+                try (PreparedStatement stD = conn.prepareStatement("DELETE FROM SnackOrder WHERE OrderId = ?")) {
+                    stD.setInt(1, order[0]);
+                    stD.executeUpdate();
+                }
+                try (PreparedStatement stU = conn.prepareStatement("UPDATE Snack SET StockQuantity = StockQuantity + ? WHERE SnackId = ?")) {
+                    stU.setInt(1, order[2]);
+                    stU.setInt(2, order[1]);
+                    stU.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+             System.out.println("refundSnacksByOrderTime error: " + e.getMessage());
+        }
+    }
+
     public List<SnackOrder> getSnackOrdersByCustomerId(int customerId) {
         List<SnackOrder> list = new ArrayList<>();
         String sql = "SELECT o.*, s.Name AS SnackName " +

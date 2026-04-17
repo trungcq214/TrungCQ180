@@ -163,7 +163,11 @@ public class PaymentServlet extends HttpServlet {
 
             if (success) {
                 session.setAttribute("bookingSuccess", "Your tickets have been successfully booked!");
-                response.sendRedirect("history");
+                if (user.getRole() == 1 || user.getRole() == 2) {
+                    response.sendRedirect("staffTickets");
+                } else {
+                    response.sendRedirect("history");
+                }
             } else {
                 request.setAttribute("error", "There was an error processing your booking. Some seats might have already been taken.");
                 doGet(request, response);
