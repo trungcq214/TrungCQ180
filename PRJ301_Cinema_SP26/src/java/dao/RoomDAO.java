@@ -69,7 +69,10 @@ public class RoomDAO extends DBContext {
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setInt(1, roomId);
             int rows = st.executeUpdate();
-            return rows > 0;
+            if (rows > 0) {
+                resetIdentity("Room", "RoomId");
+                return true;
+            }
         } catch (SQLException e) {
             System.out.println("deleteRoom error: " + e.getMessage());
         }

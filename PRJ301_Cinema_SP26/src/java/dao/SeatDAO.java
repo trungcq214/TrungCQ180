@@ -126,7 +126,10 @@ public class SeatDAO extends DBContext {
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setInt(1, seatId);
             int rows = st.executeUpdate();
-            return rows > 0;
+            if (rows > 0) {
+                resetIdentity("Seat", "SeatId");
+                return true;
+            }
         } catch (SQLException e) {
             System.out.println("deleteSeat error: " + e.getMessage());
         }

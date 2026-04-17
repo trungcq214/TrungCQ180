@@ -97,7 +97,10 @@ public class MovieDAO extends DBContext {
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setInt(1, movieId);
             int rows = st.executeUpdate();
-            return rows > 0;
+            if (rows > 0) {
+                resetIdentity("Movie", "MovieId");
+                return true;
+            }
         } catch (SQLException e) {
             System.out.println("deleteMovie error: " + e.getMessage());
         }

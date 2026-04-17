@@ -28,4 +28,23 @@ public class DBContext {
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
+
+    /**
+     * Tự động đặt lại IDENTITY seed sau khi xóa dữ liệu.
+     * Ví dụ: nếu còn bản ghi có ID cao nhất là 3, ID tiếp theo sẽ là 4.
+     * Nếu bảng rỗng, ID sẽ bắt đầu lại từ 1.
+     * @param tableName Tên bảng (ví dụ: "Movie", "Snack")
+     * @param pkColumn  Tên cột primary key (ví dụ: "MovieId", "SnackId")
+     */
+    public void resetIdentity(String tableName, String pkColumn) {
+        String sql = "DECLARE @maxId INT; " +
+                     "SELECT @maxId = ISNULL(MAX(" + pkColumn + "), 0) FROM " + tableName + "; " +
+                     "DBCC CHECKIDENT ('" + tableName + "', RESEED, @maxId);";
+        try (Connection conn = getConnection();
+             java.sql.Statement st = conn.createStatement()) {
+            st.execute(sql);
+        } catch (SQLException e) {
+            System.out.println("resetIdentity error [" + tableName + "]: " + e.getMessage());
+        }
+    }
 }

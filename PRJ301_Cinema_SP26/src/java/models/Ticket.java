@@ -18,6 +18,7 @@ public class Ticket {
     private String seatName;
     private Timestamp startTime;
     private double price;
+    private int ticketCount; // Số vé trong cùng một giao dịch (dùng khi group)
 
     public Ticket() {
     }
@@ -59,4 +60,6 @@ public class Ticket {
     public void setStartTime(Timestamp startTime) { this.startTime = startTime; }
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
+    public int getTicketCount() { return ticketCount; }
+    public void setTicketCount(int ticketCount) { this.ticketCount = ticketCount; }
 }

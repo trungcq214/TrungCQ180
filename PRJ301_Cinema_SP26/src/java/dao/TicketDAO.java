@@ -94,6 +94,60 @@ public class TicketDAO extends DBContext {
         return list;
     }
 
+    /**
+     * Lấy lịch sử vé đã nhóm theo lần mua (ScheduleId + BookingTime).
+     * Mỗi phần tử trong list là đại diện cho một GD mua (có thể nhiều ghế).
+     * Các trường mở rộng: seatNames (ghế A1, A2...), ticketCount (số vé), totalAmount (tổng tiền).
+     */
+    public List<Ticket> getGroupedTicketsByCustomerId(int customerId) {
+        List<Ticket> list = new ArrayList<>();
+        String sql = "SELECT MIN(t.TicketId) AS TicketId, t.ScheduleId, t.CustomerId, t.StaffId, " +
+                     "t.BookingTime, t.Status, " +
+                     "m.Title AS MovieTitle, th.Name AS TheaterName, r.Name AS RoomName, " +
+                     "sch.StartTime, sch.Price, " +
+                     "COUNT(*) AS TicketCount, " +
+                     "SUM(sch.Price) AS TotalAmount, " +
+                     "STRING_AGG(s.SeatName, ', ') AS SeatNames " +
+                     "FROM Ticket t " +
+                     "JOIN Schedule sch ON t.ScheduleId = sch.ScheduleId " +
+                     "JOIN Movie m ON sch.MovieId = m.MovieId " +
+                     "JOIN Room r ON sch.RoomId = r.RoomId " +
+                     "JOIN Theater th ON r.TheaterId = th.TheaterId " +
+                     "JOIN Seat s ON t.SeatId = s.SeatId " +
+                     "WHERE t.CustomerId = ? " +
+                     "GROUP BY t.ScheduleId, t.CustomerId, t.StaffId, t.BookingTime, t.Status, " +
+                     "         m.Title, th.Name, r.Name, sch.StartTime, sch.Price " +
+                     "ORDER BY t.BookingTime DESC";
+        try (Connection conn = getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+             st.setInt(1, customerId);
+             try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Ticket t = new Ticket(
+                        rs.getInt("TicketId"),
+                        rs.getInt("ScheduleId"),
+                        0,
+                        (Integer) rs.getObject("CustomerId"),
+                        (Integer) rs.getObject("StaffId"),
+                        rs.getTimestamp("BookingTime"),
+                        rs.getString("Status")
+                    );
+                    t.setMovieTitle(rs.getString("MovieTitle"));
+                    t.setTheaterName(rs.getString("TheaterName"));
+                    t.setRoomName(rs.getString("RoomName"));
+                    t.setSeatName(rs.getString("SeatNames")); // nhiều ghế
+                    t.setStartTime(rs.getTimestamp("StartTime"));
+                    t.setPrice(rs.getDouble("TotalAmount")); // tổng tiền cả lần mua
+                    t.setTicketCount(rs.getInt("TicketCount"));
+                    list.add(t);
+                }
+             }
+        } catch (SQLException e) {
+            System.out.println("getGroupedTicketsByCustomerId error: " + e.getMessage());
+        }
+        return list;
+    }
+
     public List<Ticket> getAllDetailedTickets() {
         List<Ticket> list = new ArrayList<>();
         String sql = "SELECT t.*, m.Title AS MovieTitle, th.Name AS TheaterName, r.Name AS RoomName, " +

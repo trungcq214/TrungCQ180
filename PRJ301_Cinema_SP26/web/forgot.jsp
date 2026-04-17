@@ -30,13 +30,17 @@
                     Your password is: <strong><%= request.getAttribute("recoveredPassword") %></strong>
                 </div>
             <% } else { %>
-                <p style="text-align: center; font-size: 0.9em; color: #555;">Enter your exact username to view your password.</p>
+                <p style="text-align: center; font-size: 0.9em; color: #555;">Nhập <strong>username</strong> và <strong>email</strong> của bạn để xem lại mật khẩu.</p>
                 <form action="forgot" method="POST">
                     <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" name="username" required>
+                        <label>Username <span style="color:red;">*</span></label>
+                        <input type="text" name="username" required placeholder="Nhập username của bạn">
                     </div>
-                    <button type="submit" class="btn">Get Password</button>
+                    <div class="form-group">
+                        <label>Email <span style="color:red;">*</span></label>
+                        <input type="email" name="email" required placeholder="Nhập email đã đăng ký">
+                    </div>
+                    <button type="submit" class="btn">Lấy lại mật khẩu</button>
                 </form>
             <% } %>
             

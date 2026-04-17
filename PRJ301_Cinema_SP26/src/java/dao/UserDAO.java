@@ -130,6 +130,31 @@ public class UserDAO extends DBContext {
         return null;
     }
 
+    public User getUserByUsernameAndEmail(String username, String email) {
+        String sql = "SELECT * FROM [User] WHERE Username = ? AND Email = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setString(1, username);
+            st.setString(2, email);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return new User(
+                    rs.getInt("UserId"),
+                    rs.getString("Username"),
+                    rs.getString("Email"),
+                    rs.getString("Password"),
+                    rs.getString("FullName"),
+                    rs.getInt("Role"),
+                    rs.getBoolean("IsActive"),
+                    rs.getTimestamp("CreatedAt")
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println("getUserByUsernameAndEmail error: " + e.getMessage());
+        }
+        return null;
+    }
+
     public boolean insertStaff(User user) {
         String sql = "INSERT INTO [User] (Username, Email, Password, FullName, Role, IsActive) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
