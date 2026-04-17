@@ -12,7 +12,8 @@ public class ReportDAO extends DBContext {
         double total = 0;
         String sql = "SELECT SUM(sch.Price) AS TotalTicketRevenue " +
                      "FROM Ticket t " +
-                     "JOIN Schedule sch ON t.ScheduleId = sch.ScheduleId";
+                     "JOIN Schedule sch ON t.ScheduleId = sch.ScheduleId " +
+                     "WHERE t.Status = 'Paid'";
         try (Connection conn = getConnection();
              PreparedStatement st = conn.prepareStatement(sql);
              ResultSet rs = st.executeQuery()) {
@@ -27,7 +28,7 @@ public class ReportDAO extends DBContext {
 
     public int getTicketsSold() {
         int count = 0;
-        String sql = "SELECT COUNT(TicketId) AS TicketsSold FROM Ticket";
+        String sql = "SELECT COUNT(TicketId) AS TicketsSold FROM Ticket WHERE Status = 'Paid'";
         try (Connection conn = getConnection();
              PreparedStatement st = conn.prepareStatement(sql);
              ResultSet rs = st.executeQuery()) {

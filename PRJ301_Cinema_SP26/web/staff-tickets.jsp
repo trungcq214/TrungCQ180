@@ -72,76 +72,128 @@
                 <h2>All Transactions</h2>
                 
                 <c:choose>
-                    <c:when test="${empty requestScope.tickets}">
-                        <p style="text-align:center; color:#7f8c8d; padding: 20px;">No tickets have been sold yet.</p>
+                    <c:when test="${empty requestScope.finalOrders}">
+                        <p style="text-align:center; color:#7f8c8d; padding: 20px;">No transactions found.</p>
                     </c:when>
                     <c:otherwise>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Ticket ID</th>
-                                    <th>Movie</th>
-                                    <th>Theater / Room</th>
-                                    <th>Seat</th>
-                                    <th>Booked Time</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach items="${requestScope.tickets}" var="t">
-                                    <tr>
-                                        <td>#${t.ticketId}</td>
-                                        <td><strong>${t.movieTitle}</strong></td>
-                                        <td>${t.theaterName} <br><small style="color:#7f8c8d;">${t.roomName}</small></td>
-                                        <td style="color:#e50914; font-weight:bold;">${t.seatName}</td>
-                                        <td><fmt:formatDate value="${t.bookingTime}" pattern="dd/MM/yyyy HH:mm"/></td>
-                                        <td><fmt:formatNumber value="${t.price}" pattern="#,###"/> VND</td>
-                                        <td>
-                                            <span class="status-badge ${t.status == 'Paid' ? 'status-paid' : 'status-cancelled'}">
-                                                ${t.status}
-                                            </span>
-                                        </td>
-                                    </tr>
+                        <div class="ticket-list" style="margin-top: 20px; display: grid; gap: 20px;">
+                            <c:forEach items="${requestScope.finalOrders}" var="order" varStatus="orderLoop">
+                                <c:set var="tickets" value="${order.tickets}" />
+                                <c:set var="snacks" value="${order.snacks}" />
+                                
+                                <c:set var="totalPrice" value="0" />
+                                <c:set var="seatNames" value="" />
+                                
+                                <c:forEach items="${tickets}" var="t" varStatus="st">
+                                    <c:set var="totalPrice" value="${totalPrice + t.price}" />
+                                    <c:set var="seatNames" value="${seatNames}${st.first ? '' : ', '}${t.seatName}" />
                                 </c:forEach>
-                            </tbody>
-                        </table>
-                    </c:otherwise>
-                </c:choose>
-            <div class="card" style="margin-top: 30px;">
-                <h2>Snack & Drink Sales</h2>
-                
-                <c:choose>
-                    <c:when test="${empty requestScope.snackOrders}">
-                        <p style="text-align:center; color:#7f8c8d; padding: 20px;">No snacks or drinks have been sold yet.</p>
-                    </c:when>
-                    <c:otherwise>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Snack Name</th>
-                                    <th>Quantity</th>
-                                    <th>Total Price</th>
-                                    <th>Order Time</th>
-                                    <th>Customer ID</th>
-                                    <th>Staff ID</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach items="${requestScope.snackOrders}" var="o">
-                                    <tr>
-                                        <td>#${o.orderId}</td>
-                                        <td><strong>${o.snackName}</strong></td>
-                                        <td>${o.quantity}</td>
-                                        <td style="color:#2ecc71; font-weight:bold;"><fmt:formatNumber value="${o.totalPrice}" pattern="#,###"/> VND</td>
-                                        <td><fmt:formatDate value="${o.orderTime}" pattern="dd/MM/yyyy HH:mm"/></td>
-                                        <td>${o.customerId != null ? o.customerId : 'Walk-in'}</td>
-                                        <td>${o.staffId != null ? o.staffId : 'System'}</td>
-                                    </tr>
+                                <c:forEach items="${snacks}" var="s">
+                                    <c:set var="totalPrice" value="${totalPrice + s.totalPrice}" />
                                 </c:forEach>
-                            </tbody>
-                        </table>
+
+                                <div style="background: #222; color: #eee; padding: 20px; border-radius: 8px; border-left: 5px solid ${empty tickets ? '#e67e22' : '#2ecc71'};">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                        <div>
+                                            <c:choose>
+                                                <c:when test="${not empty tickets}">
+                                                    <c:set var="firstT" value="${tickets[0]}" />
+                                                    <h3 style="margin: 0 0 10px 0; color: #fff;">${firstT.movieTitle}</h3>
+                                                    <div style="color: #aaa; margin-bottom: 5px;">
+                                                        <strong>Rạp:</strong> ${firstT.theaterName} | <strong>Phòng:</strong> ${firstT.roomName}
+                                                    </div>
+                                                    <div style="color: #aaa; margin-bottom: 5px;">
+                                                        <strong>Ghế:</strong> <span style="color:#e50914; font-weight:bold;">${seatNames}</span>
+                                                        <span style="color:#888; margin-left:8px;">(${java.lang.reflect.Array.getLength(tickets) != null ? tickets.size() : 0} vé)</span>
+                                                    </div>
+                                                    <div style="color: #aaa; margin-bottom: 5px;">
+                                                        <strong>Suất chiếu:</strong> <fmt:formatDate value="${firstT.startTime}" pattern="dd/MM/yyyy HH:mm"/>
+                                                    </div>
+                                                    <div style="color: #aaa; margin-bottom: 5px;">
+                                                        <strong>Khách hàng ID:</strong> ${firstT.customerId != null ? firstT.customerId : 'Khách Vãng Lai (Walk-in)'} |
+                                                        <strong>Bán bởi Staff ID:</strong> ${firstT.staffId != null ? firstT.staffId : 'Online (Hệ thống)'}
+                                                    </div>
+                                                    <c:set var="status" value="${firstT.status}" />
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <h3 style="margin: 0 0 10px 0; color: #fff;">Đồ ăn & Uống</h3>
+                                                    <c:set var="status" value="Đã thanh toán" />
+                                                    <c:set var="firstS" value="${snacks[0]}" />
+                                                    <div style="color: #aaa; margin-bottom: 5px;">
+                                                        <strong>Khách hàng ID:</strong> ${firstS.customerId != null ? firstS.customerId : 'Khách Vãng Lai (Walk-in)'} |
+                                                        <strong>Bán bởi Staff ID:</strong> ${firstS.staffId != null ? firstS.staffId : 'Online (Hệ thống)'}
+                                                    </div>
+                                                </c:otherwise>
+                                            </c:choose>
+                                            
+                                            <div style="color: #aaa; margin-top: 5px; font-size: 12px;">
+                                                <em>Thời gian tạo: <fmt:formatDate value="${order.orderTime}" pattern="dd/MM/yyyy HH:mm:ss"/></em>
+                                            </div>
+                                            
+                                            <c:if test="${not empty snacks}">
+                                                <div style="margin-top: 12px; padding: 10px; background: #333; border-radius: 4px; border-left: 3px solid #e67e22;">
+                                                    <strong style="color: #e67e22; font-size: 14px;">Snack kèm theo:</strong>
+                                                    <c:forEach items="${snacks}" var="s">
+                                                        <div style="color: #ccc; font-size: 13px; margin-top: 5px;">
+                                                            - ${s.quantity}x ${s.snackName} ( <fmt:formatNumber value="${s.totalPrice}" type="number" groupingUsed="true"/> VND )
+                                                        </div>
+                                                    </c:forEach>
+                                                </div>
+                                            </c:if>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div style="font-size: 12px; color: #888; margin-bottom: 4px;">Tổng Hóa Đơn</div>
+                                            <div style="font-size: 24px; font-weight: bold; color: #2ecc71;">
+                                                <fmt:formatNumber value="${totalPrice}" type="number" groupingUsed="true"/> VND
+                                            </div>
+                                            <div style="margin-top: 5px; margin-bottom: 15px; display: inline-block; padding: 4px 10px; border-radius: 12px; background: #444; font-size: 12px; color: ${status == 'Paid' || status == 'Đã thanh toán' ? '#2ecc71' : '#e74c3c'};">
+                                                ${status}
+                                            </div>
+                                            
+                                            <c:if test="${not empty tickets}">
+                                                <div style="margin-top: 10px;">
+                                                    <button style="background: transparent; color: #e50914; border: 1px solid #e50914; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;" onclick="document.getElementById('staff-details-${orderLoop.index}').style.display = document.getElementById('staff-details-${orderLoop.index}').style.display === 'none' ? 'block' : 'none'">
+                                                        Chi tiết vé lẻ &#x25BC;
+                                                    </button>
+                                                </div>
+                                            </c:if>
+                                        </div>
+                                    </div>
+                                    
+                                    <c:if test="${not empty tickets}">
+                                        <div id="staff-details-${orderLoop.index}" style="display: none; margin-top: 15px; border-top: 1px dashed #444; padding-top: 15px;">
+                                            <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #ccc;">Chi Tiết Từng Vé:</h4>
+                                            <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #ddd; background: transparent; box-shadow: none;">
+                                                <thead>
+                                                    <tr style="border-bottom: 1px solid #555; text-align: left; background-color: transparent;">
+                                                        <th style="padding: 6px; color: #ddd; font-weight: bold;">Mã vé</th>
+                                                        <th style="padding: 6px; color: #ddd; font-weight: bold;">Ghế</th>
+                                                        <th style="padding: 6px; color: #ddd; font-weight: bold;">Trạng thái</th>
+                                                        <th style="padding: 6px; text-align: right; color: #ddd; font-weight: bold;">Giá tiền</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <c:forEach items="${tickets}" var="dt">
+                                                        <tr style="border-bottom: 1px solid #333; background-color: transparent;">
+                                                            <td style="padding: 6px; color: #888;">#${dt.ticketId}</td>
+                                                            <td style="padding: 6px; font-weight: bold;">${dt.seatName}</td>
+                                                            <td style="padding: 6px;">
+                                                                <span class="status-badge ${dt.status == 'Paid' ? 'status-paid' : 'status-cancelled'}">
+                                                                    ${dt.status}
+                                                                </span>
+                                                            </td>
+                                                            <td style="padding: 6px; text-align: right;">
+                                                                <fmt:formatNumber value="${dt.price}" type="number" groupingUsed="true"/> VND
+                                                            </td>
+                                                        </tr>
+                                                    </c:forEach>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </c:if>
+                                </div>
+                            </c:forEach>
+                        </div>
                     </c:otherwise>
                 </c:choose>
             </div>

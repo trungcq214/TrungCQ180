@@ -27,12 +27,71 @@ public class StaffTicketsServlet extends HttpServlet {
         }
 
         TicketDAO tDao = new TicketDAO();
-        List<Ticket> allTickets = tDao.getAllDetailedTickets();
-        request.setAttribute("tickets", allTickets);
+        List<Ticket> rawTickets = tDao.getAllDetailedTickets();
+        
+        java.util.Map<String, List<Ticket>> groupedMap = new java.util.LinkedHashMap<>();
+        for (Ticket t : rawTickets) {
+            String key = t.getScheduleId() + "_" + t.getBookingTime().getTime() + "_" + t.getCustomerId() + "_" + t.getStaffId();
+            groupedMap.computeIfAbsent(key, k -> new java.util.ArrayList<>()).add(t);
+        }
 
         dao.SnackDAO sDao = new dao.SnackDAO();
-        List<models.SnackOrder> allSnackOrders = sDao.getAllSnackOrders();
-        request.setAttribute("snackOrders", allSnackOrders);
+        List<models.SnackOrder> snackOrders = sDao.getAllSnackOrders();
+        
+        List<java.util.Map<String, Object>> finalOrders = new java.util.ArrayList<>();
+        
+        for (List<Ticket> tList : groupedMap.values()) {
+            java.util.Map<String, Object> orderDto = new java.util.HashMap<>();
+            orderDto.put("tickets", tList);
+            
+            Ticket firstT = tList.get(0);
+            long tTime = firstT.getBookingTime().getTime();
+            
+            List<models.SnackOrder> relatedSnacks = new java.util.ArrayList<>();
+            java.util.Iterator<models.SnackOrder> it = snackOrders.iterator();
+            while(it.hasNext()) {
+                models.SnackOrder snack = it.next();
+                if (Math.abs(snack.getOrderTime().getTime() - tTime) <= 5000 
+                    && java.util.Objects.equals(snack.getCustomerId(), firstT.getCustomerId())
+                    && java.util.Objects.equals(snack.getStaffId(), firstT.getStaffId())) {
+                    relatedSnacks.add(snack);
+                    it.remove();
+                }
+            }
+            orderDto.put("snacks", relatedSnacks);
+            orderDto.put("orderTime", firstT.getBookingTime());
+            finalOrders.add(orderDto);
+        }
+        
+        while(!snackOrders.isEmpty()) {
+            models.SnackOrder firstS = snackOrders.remove(0);
+            List<models.SnackOrder> sList = new java.util.ArrayList<>();
+            sList.add(firstS);
+            
+            java.util.Iterator<models.SnackOrder> it = snackOrders.iterator();
+            while(it.hasNext()) {
+                models.SnackOrder snack = it.next();
+                if (Math.abs(snack.getOrderTime().getTime() - firstS.getOrderTime().getTime()) <= 5000
+                    && java.util.Objects.equals(snack.getCustomerId(), firstS.getCustomerId())
+                    && java.util.Objects.equals(snack.getStaffId(), firstS.getStaffId())) {
+                    sList.add(snack);
+                    it.remove();
+                }
+            }
+            java.util.Map<String, Object> orderDto = new java.util.HashMap<>();
+            orderDto.put("tickets", new java.util.ArrayList<Ticket>());
+            orderDto.put("snacks", sList);
+            orderDto.put("orderTime", firstS.getOrderTime());
+            finalOrders.add(orderDto);
+        }
+        
+        finalOrders.sort((o1, o2) -> {
+            java.util.Date d1 = (java.util.Date) o1.get("orderTime");
+            java.util.Date d2 = (java.util.Date) o2.get("orderTime");
+            return d2.compareTo(d1);
+        });
+
+        request.setAttribute("finalOrders", finalOrders);
         
         request.getRequestDispatcher("staff-tickets.jsp").forward(request, response);
     } 

@@ -51,6 +51,19 @@
             <button class="btn-back" onclick="history.back()">&#8592; Quay lại</button>
             <h2>Lịch sử Mua hàng</h2>
             
+            <c:if test="${not empty sessionScope.message}">
+                <div style="background: #2ecc71; color: white; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                    ${sessionScope.message}
+                </div>
+                <c:remove var="message" scope="session"/>
+            </c:if>
+            <c:if test="${not empty sessionScope.error}">
+                <div style="background: #e74c3c; color: white; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                    ${sessionScope.error}
+                </div>
+                <c:remove var="error" scope="session"/>
+            </c:if>
+            
             <c:choose>
                 <c:when test="${empty requestScope.finalOrders}">
                     <div class="info-box">
@@ -141,16 +154,31 @@
                                                 <tr style="border-bottom: 1px solid #555; text-align: left;">
                                                     <th style="padding: 6px;">Mã vé</th>
                                                     <th style="padding: 6px;">Ghế</th>
+                                                    <th style="padding: 6px;">Trạng thái</th>
                                                     <th style="padding: 6px; text-align: right;">Giá tiền</th>
+                                                    <th style="padding: 6px; text-align: right;">Hành động</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                                <jsp:useBean id="now" class="java.util.Date"/>
                                                 <c:forEach items="${tickets}" var="dt">
+                                                    <c:set var="timeDiff" value="${dt.startTime.time - now.time}"/>
                                                     <tr style="border-bottom: 1px solid #333;">
                                                         <td style="padding: 6px; color: #888;">#${dt.ticketId}</td>
                                                         <td style="padding: 6px; font-weight: bold;">${dt.seatName}</td>
+                                                        <td style="padding: 6px;">
+                                                            <span style="color: ${dt.status == 'Paid' ? '#2ecc71' : '#e74c3c'}; font-size: 12px; padding: 3px 6px; background: rgba(255,255,255,0.1); border-radius: 4px;">${dt.status}</span>
+                                                        </td>
                                                         <td style="padding: 6px; text-align: right;">
                                                             <fmt:formatNumber value="${dt.price}" type="number" groupingUsed="true"/> VND
+                                                        </td>
+                                                        <td style="padding: 6px; text-align: right;">
+                                                            <c:if test="${dt.status == 'Paid' && timeDiff > 86400000}">
+                                                                <form action="refund" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn hủy chiếc vé này không?');">
+                                                                    <input type="hidden" name="ticketId" value="${dt.ticketId}"/>
+                                                                    <button type="submit" style="background:#e74c3c; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:12px; cursor:pointer;" title="Được hủy trước 24h">Hủy Vé</button>
+                                                                </form>
+                                                            </c:if>
                                                         </td>
                                                     </tr>
                                                 </c:forEach>
