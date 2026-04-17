@@ -184,6 +184,10 @@
                                                 </c:forEach>
                                             </tbody>
                                         </table>
+                                        <div style="font-size: 11px; color: #e74c3c; margin-top: 10px; font-style: italic;">
+                                            * Lưu ý: Vé phim (đang ở trạng thái Paid) chỉ có thể được hoàn hủy nếu thời gian hủy trước 24 tiếng. <br>
+                                            * Đặc biệt: Nếu bạn hủy <strong style="color:white; text-decoration:underline;">tất cả các vé</strong> trong đơn hàng hiện tại, các loại đồ ăn/uống (Snacks - nếu có) của đơn hàng này cũng sẽ tự động bị hủy theo! Nếu đơn còn giữ ít nhất 1 vé, số lượng Snacks được giữ nguyên.
+                                        </div>
                                     </div>
                                 </c:if>
                             </div>
