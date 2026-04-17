@@ -72,7 +72,10 @@ public class SnackDAO extends DBContext {
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setInt(1, snackId);
             int rows = st.executeUpdate();
-            return rows > 0;
+            if (rows > 0) {
+                resetIdentity("Snack", "SnackId");
+                return true;
+            }
         } catch (SQLException e) {
             System.out.println("deleteSnack error: " + e.getMessage());
         }

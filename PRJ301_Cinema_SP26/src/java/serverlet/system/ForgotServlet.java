@@ -21,14 +21,26 @@ public class ForgotServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         String username = request.getParameter("username");
+        String email = request.getParameter("email");
+
+        if (username == null || username.trim().isEmpty()) {
+            request.setAttribute("error", "Username là bắt buộc!");
+            request.getRequestDispatcher("forgot.jsp").forward(request, response);
+            return;
+        }
+        if (email == null || email.trim().isEmpty()) {
+            request.setAttribute("error", "Email là bắt buộc!");
+            request.getRequestDispatcher("forgot.jsp").forward(request, response);
+            return;
+        }
 
         UserDAO dao = new UserDAO();
-        String password = dao.getPasswordByUsername(username);
+        models.User user = dao.getUserByUsernameAndEmail(username.trim(), email.trim());
 
-        if (password != null) {
-            request.setAttribute("recoveredPassword", password);
+        if (user != null) {
+            request.setAttribute("recoveredPassword", user.getPassword());
         } else {
-            request.setAttribute("error", "Username not found!");
+            request.setAttribute("error", "Username hoặc Email không đúng. Vui lòng kiểm tra lại!");
         }
         
         request.getRequestDispatcher("forgot.jsp").forward(request, response);
